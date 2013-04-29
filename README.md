@@ -7,6 +7,7 @@ It was inspired by this amazing demonstration of "Insanely Twisted Shadow Planet
 
  - Camera looking ahead based on the movement of the player
  - Moving focus to Points of Interest with inner and outer area of influence
+ - Bounding Box to keep the player on screen
 
 ## Possible Future Features
 
