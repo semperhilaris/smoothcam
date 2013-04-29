@@ -8,9 +8,11 @@ import java.util.Arrays;
  * @author David Froehlich <semperhilaris@gmail.com> */
 public class SmoothCamWorld {
 	private SmoothCamSubject subject;
+	private SmoothCamBoundingBox boundingBox = new SmoothCamBoundingBox(0, 0);
 	private SmoothCamPoint[] points = {};
 	private float x = 0f;
 	private float y = 0f;
+	private boolean useBoundingBox = false;
 
 	/** Creates a World for SmoothCam and sets its subject
 	 * @param subject */
@@ -55,6 +57,17 @@ public class SmoothCamWorld {
 		return Math.sqrt((p1.getX() - p2.getX()) * (p1.getX() - p2.getX()) + (p1.getY() - p2.getY()) * (p1.getY() - p2.getY()));
 	}
 
+	public void setBoundingBox (float w, float h) {
+		boundingBox.setBounds(w, h);
+		if (w > 0 && h > 0) {
+			useBoundingBox = true;
+		}
+	}
+
+	public SmoothCamBoundingBox getBoundingBox () {
+		return boundingBox;
+	}
+
 	/** Calculates the nearest point of interest relative to the world's subject. If the subject is already inside the outer radius
 	 * of a point, that point will be returned instead.
 	 * @param p1
@@ -75,12 +88,10 @@ public class SmoothCamWorld {
 		return nearestPoint;
 	}
 
-	/**
-	 * Calculates the focus point of the camera. If the subject is not inside the outer radius of a point of interest,
-	 * the camera will follow the subject and only apply velocity shifting. When the subject enters the outer radius of a point of interest, 
+	/** Calculates the focus point of the camera. If the subject is not inside the outer radius of a point of interest, the camera
+	 * will follow the subject and only apply velocity shifting. When the subject enters the outer radius of a point of interest,
 	 * the focus will begin to shift from the subject towards that point. Once the subject entered the inner radius of the point,
-	 * camera focus switches completely to the point of interest.
-	 */
+	 * camera focus switches completely to the point of interest. */
 	public void update () {
 		float coeff = 0f;
 		if (points.length > 0) {
@@ -100,11 +111,25 @@ public class SmoothCamWorld {
 				x = nearestPoint.getX() + coeff * deltaX;
 				y = nearestPoint.getY() + coeff * deltaY;
 			}
-		}
-		else {
+		} else {
 			x = subject.getX();
 			y = subject.getY();
 			coeff = 1f;
+		}
+		if (useBoundingBox) {
+			if (subject.getX() > x + boundingBox.w2) {
+				x = subject.getX() - boundingBox.w2;
+			}
+			if (subject.getX() < x - boundingBox.w2) {
+				x = subject.getX() + boundingBox.w2;
+			}
+			if (subject.getY() > y + boundingBox.h2) {
+				y = subject.getY() - boundingBox.h2;
+			}
+			if (subject.getY() < y - boundingBox.h2) {
+				y = subject.getY() + boundingBox.h2;
+			}
+
 		}
 		x = x + (subject.getVelocityRadius() * subject.getVelocityX() * coeff);
 		y = y + (subject.getVelocityRadius() * subject.getVelocityY() * coeff);

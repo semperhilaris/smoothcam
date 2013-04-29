@@ -15,11 +15,9 @@ public class SmoothCamDebugRenderer {
 		renderer = new ShapeRenderer();
 	}
 
-	/**
-	 * Renders debug shapes for POIs, the subject and the focus point of a {@link SmoothCamWorld}
+	/** Renders debug shapes for POIs, the subject and the focus point of a {@link SmoothCamWorld}
 	 * @param world
-	 * @param projMatrix
-	 */
+	 * @param projMatrix */
 	public void render (SmoothCamWorld world, Matrix4 projMatrix) {
 		SmoothCamPoint[] points = world.getPoints();
 		renderer.setProjectionMatrix(projMatrix);
@@ -34,6 +32,13 @@ public class SmoothCamDebugRenderer {
 		SmoothCamSubject subject = world.getSubject();
 		renderer.circle(subject.getX(), subject.getY(), subject.getVelocityRadius());
 		renderer.end();
+		if (world.getBoundingBox().w > 0 && world.getBoundingBox().h > 0) {
+			renderer.begin(ShapeType.Box);
+			renderer.setColor(1, 0, 0, 1);
+			renderer.box(world.getX() - world.getBoundingBox().w / 2, world.getY() - world.getBoundingBox().h / 2, 0,
+				world.getBoundingBox().w, world.getBoundingBox().h, 0);
+			renderer.end();
+		}
 		renderer.begin(ShapeType.Line);
 		renderer.setColor(0, 0, 0, 1);
 		renderer.line(world.getX() + 3f, world.getY(), world.getX() - 3f, world.getY());

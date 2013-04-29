@@ -53,6 +53,9 @@ public class SmoothCamTest implements ApplicationListener {
 
 		/* Creating the SmoothCamWorld with the subject */
 		scw = new SmoothCamWorld(player);
+		
+		/* Set the bounding box */
+		scw.setBoundingBox(camera.viewportWidth*0.8f, camera.viewportHeight*0.8f);
 
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
@@ -105,6 +108,13 @@ public class SmoothCamTest implements ApplicationListener {
 		testpoi4.setInnerRadius(60f);
 		testpoi4.setOuterRadius(140f);
 		scw.addPoint(testpoi4);
+		
+		/* Point of interest #5 */
+		SmoothCamPoint testpoi5 = new SmoothCamPoint();
+		testpoi5.setPosition(-500f, 300f);
+		testpoi5.setInnerRadius(260f);
+		testpoi5.setOuterRadius(340f);
+		scw.addPoint(testpoi5);
 
 		batch = new SpriteBatch();
 	}
