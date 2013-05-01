@@ -116,6 +116,8 @@ public class SmoothCamWorld {
 			y = subject.getY();
 			coeff = 1f;
 		}
+		x = x + (subject.getVelocityRadius() * subject.getVelocityX() * coeff);
+		y = y + (subject.getVelocityRadius() * subject.getVelocityY() * coeff);
 		if (useBoundingBox) {
 			if (subject.getX() > x + boundingBox.w2) {
 				x = subject.getX() - boundingBox.w2;
@@ -129,10 +131,7 @@ public class SmoothCamWorld {
 			if (subject.getY() < y - boundingBox.h2) {
 				y = subject.getY() + boundingBox.h2;
 			}
-
 		}
-		x = x + (subject.getVelocityRadius() * subject.getVelocityX() * coeff);
-		y = y + (subject.getVelocityRadius() * subject.getVelocityY() * coeff);
 	}
 
 }
