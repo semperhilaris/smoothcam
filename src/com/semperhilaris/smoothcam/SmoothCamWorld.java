@@ -110,8 +110,15 @@ public class SmoothCamWorld {
 				}
 				float deltaX = subject.getX() - nearestPoint.getX();
 				float deltaY = subject.getY() - nearestPoint.getY();
-				x = nearestPoint.getX() + coeff * deltaX;
-				y = nearestPoint.getY() + coeff * deltaY;
+				if (nearestPoint.getPolarity() == SmoothCamPoint.REPULSE) {
+					if (distance == 0) distance = 0.0001; // avoiding devision by zero
+					x = subject.getX() + deltaX / (float)distance * (nearestPoint.getOuterRadius() - (float)distance);
+					y = subject.getY() + deltaY / (float)distance * (nearestPoint.getOuterRadius() - (float)distance);
+				} else {
+					x = nearestPoint.getX() + coeff * deltaX;
+					y = nearestPoint.getY() + coeff * deltaY;
+				}
+
 			}
 		} else {
 			x = subject.getX();

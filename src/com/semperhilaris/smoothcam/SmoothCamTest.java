@@ -46,16 +46,16 @@ public class SmoothCamTest implements ApplicationListener {
 		player = new SmoothCamSubject();
 
 		/*
-		 * Set the velocity radius for the subject.
-		 * At max velocity, the camera will shift that much in the direction of the movement.
+		 * Set the velocity radius for the subject. At max velocity, the camera will shift that much in the direction of the
+		 * movement.
 		 */
 		player.setVelocityRadius(30f);
 
 		/* Creating the SmoothCamWorld with the subject */
 		scw = new SmoothCamWorld(player);
-		
+
 		/* Set the bounding box */
-		scw.setBoundingBox(camera.viewportWidth*0.8f, camera.viewportHeight*0.8f);
+		scw.setBoundingBox(camera.viewportWidth * 0.8f, camera.viewportHeight * 0.8f);
 
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
@@ -86,6 +86,7 @@ public class SmoothCamTest implements ApplicationListener {
 		testpoi.setPosition(0f, -50f);
 		testpoi.setInnerRadius(70f);
 		testpoi.setOuterRadius(200f);
+		testpoi.setPolarity(SmoothCamPoint.ATTRACT);
 		scw.addPoint(testpoi);
 
 		/* Point of interest #2 */
@@ -93,6 +94,7 @@ public class SmoothCamTest implements ApplicationListener {
 		testpoi2.setPosition(500f, 100f);
 		testpoi2.setInnerRadius(50f);
 		testpoi2.setOuterRadius(250f);
+		testpoi2.setPolarity(SmoothCamPoint.ATTRACT);
 		scw.addPoint(testpoi2);
 
 		/* Point of interest #3 */
@@ -100,6 +102,7 @@ public class SmoothCamTest implements ApplicationListener {
 		testpoi3.setPosition(-30f, 400f);
 		testpoi3.setInnerRadius(100f);
 		testpoi3.setOuterRadius(140f);
+		testpoi3.setPolarity(SmoothCamPoint.ATTRACT);
 		scw.addPoint(testpoi3);
 
 		/* Point of interest #4 */
@@ -107,14 +110,24 @@ public class SmoothCamTest implements ApplicationListener {
 		testpoi4.setPosition(280f, 400f);
 		testpoi4.setInnerRadius(60f);
 		testpoi4.setOuterRadius(140f);
+		testpoi4.setPolarity(SmoothCamPoint.ATTRACT);
 		scw.addPoint(testpoi4);
-		
+
 		/* Point of interest #5 */
 		SmoothCamPoint testpoi5 = new SmoothCamPoint();
 		testpoi5.setPosition(-500f, 300f);
 		testpoi5.setInnerRadius(260f);
 		testpoi5.setOuterRadius(340f);
+		testpoi5.setPolarity(SmoothCamPoint.ATTRACT);
 		scw.addPoint(testpoi5);
+
+		/* Point of interest #6 */
+		SmoothCamPoint testpoi6 = new SmoothCamPoint();
+		testpoi6.setPosition(-400f, -300f);
+		testpoi6.setInnerRadius(160f);
+		testpoi6.setOuterRadius(210f);
+		testpoi6.setPolarity(SmoothCamPoint.REPULSE);
+		scw.addPoint(testpoi6);
 
 		batch = new SpriteBatch();
 	}
@@ -129,19 +142,18 @@ public class SmoothCamTest implements ApplicationListener {
 		if (Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)) {
 			float accelX = Gdx.input.getAccelerometerX();
 			float accelY = Gdx.input.getAccelerometerY();
-			body.applyLinearImpulse(new Vector2(accelY * 4f, accelX * -4f), body.getLocalCenter());
+			body.applyLinearImpulse(new Vector2(accelY * 30f, accelX * -30f), body.getLocalCenter());
 		} else {
 			if (Gdx.input.isKeyPressed(Keys.DPAD_LEFT)) body.applyLinearImpulse(new Vector2(-150f, 0f), body.getLocalCenter());
 			if (Gdx.input.isKeyPressed(Keys.DPAD_RIGHT)) body.applyLinearImpulse(new Vector2(150f, 0f), body.getLocalCenter());
 			if (Gdx.input.isKeyPressed(Keys.DPAD_UP)) body.applyLinearImpulse(new Vector2(0f, 150f), body.getLocalCenter());
 			if (Gdx.input.isKeyPressed(Keys.DPAD_DOWN)) body.applyLinearImpulse(new Vector2(0f, -150f), body.getLocalCenter());
 		}
-		
+
 		/*
-		 * Updating the position and velocity of the SmoothCamSubject using Box2D.
-		 * In this example, maximum velocity of the body is around 122, 
-		 * so we have to divide by that value to get the relative value between -1 and 1 that we need for SmoothCamWorld.
-		 * After that, update the SmoothCamWorld and use the new X/Y values to center the libGDX camera.
+		 * Updating the position and velocity of the SmoothCamSubject using Box2D. In this example, maximum velocity of the body is
+		 * around 122, so we have to divide by that value to get the relative value between -1 and 1 that we need for
+		 * SmoothCamWorld. After that, update the SmoothCamWorld and use the new X/Y values to center the libGDX camera.
 		 */
 		player.setPosition(body.getPosition().x, body.getPosition().y);
 		player.setVelocity(body.getLinearVelocity().x / 122f, body.getLinearVelocity().y / 122f);
@@ -154,7 +166,7 @@ public class SmoothCamTest implements ApplicationListener {
 
 		world.step(1 / 60f, 6, 2);
 		debugRenderer.render(world, camera.combined);
-		
+
 		/* Rendering the debug shapes for the SmoothCamWorld */
 		scDebug.render(scw, camera.combined);
 	}

@@ -25,7 +25,11 @@ public class SmoothCamDebugRenderer {
 		for (int i = 0; i < points.length; i++) {
 			renderer.setColor(0, 1, 0, 1);
 			renderer.circle(points[i].getX(), points[i].getY(), points[i].getInnerRadius());
-			renderer.setColor(0, 0, 1, 1);
+			if (points[i].getPolarity() == SmoothCamPoint.REPULSE) {
+				renderer.setColor(1, 0, 0, 1);
+			} else {
+				renderer.setColor(0, 0, 1, 1);
+			}
 			renderer.circle(points[i].getX(), points[i].getY(), points[i].getOuterRadius());
 		}
 		renderer.setColor(0, 0, 0, 1);

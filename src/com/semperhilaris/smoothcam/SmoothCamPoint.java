@@ -10,15 +10,33 @@ public class SmoothCamPoint {
 	private float outerRadius = 0;
 	private float innerRadius = 0;
 	private float radiusDistance = 0;
+	private int polarity = 1;
+	public static final int ATTRACT = 1;
+	public static final int REPULSE = -1;
 
 	public SmoothCamPoint () {
 
 	}
 
-	public SmoothCamPoint (float x, float y, float outerRadius, float innerRadius) {
+	/** A Point of Interest in a {@link SmoothCamWorld}
+	 * @param x Position X
+	 * @param y Position Y
+	 * @param outerRadius the distance from the center of the point where the camera starts shifting focus
+	 * @param innerRadius the distance from the center of the point where the influence on the camera is in full effect
+	 * @param polarity weather the point should attract or repulse the camera */
+	public SmoothCamPoint (float x, float y, float outerRadius, float innerRadius, int polarity) {
 		setPosition(x, y);
 		setOuterRadius(outerRadius);
 		setInnerRadius(innerRadius);
+		setPolarity(polarity);
+	}
+
+	public void setPolarity (int polarity) {
+		if (polarity < 0) {
+			this.polarity = REPULSE;
+		} else {
+			this.polarity = ATTRACT;
+		}
 	}
 
 	public void setOuterRadius (float radius) {
@@ -62,4 +80,7 @@ public class SmoothCamPoint {
 		return radiusDistance;
 	}
 
+	public int getPolarity () {
+		return polarity;
+	}
 }
