@@ -61,6 +61,8 @@ public class SmoothCamWorld {
 		boundingBox.setBounds(w, h);
 		if (w > 0 && h > 0) {
 			useBoundingBox = true;
+		} else {
+			useBoundingBox = false;
 		}
 	}
 
