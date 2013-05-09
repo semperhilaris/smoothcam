@@ -1,10 +1,16 @@
 
 package com.semperhilaris.smoothcam;
 
+import aurelienribon.tweenengine.Timeline;
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenManager;
+import aurelienribon.tweenengine.equations.Elastic;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Input.Peripheral;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -28,6 +34,8 @@ public class SmoothCamTest implements ApplicationListener {
 	private SmoothCamSubject player;
 	private SmoothCamWorld scw;
 	private SmoothCamDebugRenderer scDebug;
+	private TweenManager tweenManager;
+	private Timeline timeline;
 
 	@Override
 	public void create () {
@@ -56,6 +64,10 @@ public class SmoothCamTest implements ApplicationListener {
 
 		/* Set the bounding box */
 		scw.setBoundingBox(camera.viewportWidth * 0.8f, camera.viewportHeight * 0.8f);
+
+		/* Initialize the TweenAccessor and TweenManager */
+		Tween.registerAccessor(SmoothCamWorld.class, new SmoothCamAccessor());
+		tweenManager = new TweenManager();
 
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.DynamicBody;
@@ -130,6 +142,31 @@ public class SmoothCamTest implements ApplicationListener {
 		scw.addPoint(testpoi6);
 
 		batch = new SpriteBatch();
+
+		/*
+		 * start tween with "T"-key
+		 */
+		Gdx.input.setInputProcessor(new InputAdapter() {
+			public boolean keyDown (int key) {
+				if (key == Keys.T) {
+					scw.isTweening = !scw.isTweening;
+					if (scw.isTweening) {
+						/*
+						 * Example Tween-Sequence: 1. Pan to point of interest #1 (0, -50) 2. Wait 1 second 3. Pan back to the starting
+						 * position
+						 */
+						timeline = Timeline.createSequence()
+							.push(Tween.to(scw, SmoothCamAccessor.PAN, 1.5f).target(0, -50).ease(Elastic.INOUT)).pushPause(1.0f)
+							.push(Tween.to(scw, SmoothCamAccessor.PAN, 1.5f).target(scw.getX(), scw.getY()).ease(Elastic.INOUT))
+							.start(tweenManager);
+					} else {
+						tweenManager.killAll();
+					}
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 
 	@Override
@@ -139,32 +176,47 @@ public class SmoothCamTest implements ApplicationListener {
 
 	@Override
 	public void render () {
-		if (Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)) {
-			float accelX = Gdx.input.getAccelerometerX();
-			float accelY = Gdx.input.getAccelerometerY();
-			body.applyLinearImpulse(new Vector2(accelY * 30f, accelX * -30f), body.getLocalCenter());
+
+		if (scw.isTweening && timeline.isFinished()) {
+			scw.isTweening = false;
+		}
+
+		if (!scw.isTweening) {
+			if (Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)) {
+				float accelX = Gdx.input.getAccelerometerX();
+				float accelY = Gdx.input.getAccelerometerY();
+				body.applyLinearImpulse(new Vector2(accelY * 30f, accelX * -30f), body.getLocalCenter());
+			} else {
+				if (Gdx.input.isKeyPressed(Keys.DPAD_LEFT)) body.applyLinearImpulse(new Vector2(-150f, 0f), body.getLocalCenter());
+				if (Gdx.input.isKeyPressed(Keys.DPAD_RIGHT)) body.applyLinearImpulse(new Vector2(150f, 0f), body.getLocalCenter());
+				if (Gdx.input.isKeyPressed(Keys.DPAD_UP)) body.applyLinearImpulse(new Vector2(0f, 150f), body.getLocalCenter());
+				if (Gdx.input.isKeyPressed(Keys.DPAD_DOWN)) body.applyLinearImpulse(new Vector2(0f, -150f), body.getLocalCenter());
+			}
+			/*
+			 * Updating the position and velocity of the SmoothCamSubject using Box2D. In this example, maximum velocity of the body
+			 * is around 122, so we have to divide by that value to get the relative value between -1 and 1 that we need for
+			 * SmoothCamWorld. After that, update the SmoothCamWorld.
+			 */
+			world.step(1 / 60f, 6, 2);
+			player.setPosition(body.getPosition().x, body.getPosition().y);
+			player.setVelocity(body.getLinearVelocity().x / 122f, body.getLinearVelocity().y / 122f);
+			scw.update();
 		} else {
-			if (Gdx.input.isKeyPressed(Keys.DPAD_LEFT)) body.applyLinearImpulse(new Vector2(-150f, 0f), body.getLocalCenter());
-			if (Gdx.input.isKeyPressed(Keys.DPAD_RIGHT)) body.applyLinearImpulse(new Vector2(150f, 0f), body.getLocalCenter());
-			if (Gdx.input.isKeyPressed(Keys.DPAD_UP)) body.applyLinearImpulse(new Vector2(0f, 150f), body.getLocalCenter());
-			if (Gdx.input.isKeyPressed(Keys.DPAD_DOWN)) body.applyLinearImpulse(new Vector2(0f, -150f), body.getLocalCenter());
+			/*
+			 * Updating the Tween-Timeline
+			 */
+			tweenManager.update(Gdx.graphics.getDeltaTime());
 		}
 
 		/*
-		 * Updating the position and velocity of the SmoothCamSubject using Box2D. In this example, maximum velocity of the body is
-		 * around 122, so we have to divide by that value to get the relative value between -1 and 1 that we need for
-		 * SmoothCamWorld. After that, update the SmoothCamWorld and use the new X/Y values to center the libGDX camera.
+		 * Center the libGDX camera using the coordinates of the SmoothCamWorld
 		 */
-		player.setPosition(body.getPosition().x, body.getPosition().y);
-		player.setVelocity(body.getLinearVelocity().x / 122f, body.getLinearVelocity().y / 122f);
-		scw.update();
 		camera.position.set(scw.getX(), scw.getY(), 0);
 		camera.update();
 
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
-		world.step(1 / 60f, 6, 2);
 		debugRenderer.render(world, camera.combined);
 
 		/* Rendering the debug shapes for the SmoothCamWorld */
@@ -182,4 +234,5 @@ public class SmoothCamTest implements ApplicationListener {
 	@Override
 	public void resume () {
 	}
+
 }

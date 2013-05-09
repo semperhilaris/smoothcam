@@ -13,6 +13,7 @@ public class SmoothCamWorld {
 	private float x = 0f;
 	private float y = 0f;
 	private boolean useBoundingBox = false;
+	public boolean isTweening = false;
 
 	/** Creates a World for SmoothCam and sets its subject
 	 * @param subject */
@@ -64,6 +65,14 @@ public class SmoothCamWorld {
 		} else {
 			useBoundingBox = false;
 		}
+	}
+
+	public void setX (float x) {
+		this.x = x;
+	}
+
+	public void setY (float y) {
+		this.y = y;
 	}
 
 	public SmoothCamBoundingBox getBoundingBox () {
@@ -118,7 +127,6 @@ public class SmoothCamWorld {
 					x = nearestPoint.getX() + coeff * deltaX;
 					y = nearestPoint.getY() + coeff * deltaY;
 				}
-
 			}
 		} else {
 			x = subject.getX();
