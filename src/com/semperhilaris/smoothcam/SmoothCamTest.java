@@ -107,6 +107,7 @@ public class SmoothCamTest implements ApplicationListener {
 		testpoi2.setInnerRadius(50f);
 		testpoi2.setOuterRadius(250f);
 		testpoi2.setPolarity(SmoothCamPoint.ATTRACT);
+		testpoi2.setZoom(-0.5f);
 		scw.addPoint(testpoi2);
 
 		/* Point of interest #3 */
@@ -131,6 +132,7 @@ public class SmoothCamTest implements ApplicationListener {
 		testpoi5.setInnerRadius(260f);
 		testpoi5.setOuterRadius(340f);
 		testpoi5.setPolarity(SmoothCamPoint.ATTRACT);
+		testpoi5.setZoom(0.5f);
 		scw.addPoint(testpoi5);
 
 		/* Point of interest #6 */
@@ -212,6 +214,8 @@ public class SmoothCamTest implements ApplicationListener {
 		 * Center the libGDX camera using the coordinates of the SmoothCamWorld
 		 */
 		camera.position.set(scw.getX(), scw.getY(), 0);
+		camera.viewportWidth = (Gdx.graphics.getWidth() / 2) * scw.getZoom();
+		camera.viewportHeight = (Gdx.graphics.getHeight() / 2) * scw.getZoom();
 		camera.update();
 
 		Gdx.gl.glClearColor(1, 1, 1, 1);

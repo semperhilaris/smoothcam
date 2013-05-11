@@ -12,6 +12,7 @@ public class SmoothCamWorld {
 	private SmoothCamPoint[] points = {};
 	private float x = 0f;
 	private float y = 0f;
+	private float zoom = 1f;
 	private boolean useBoundingBox = false;
 	public boolean isTweening = false;
 
@@ -50,6 +51,10 @@ public class SmoothCamWorld {
 		return y;
 	}
 
+	public float getZoom () {
+		return zoom;
+	}
+
 	public SmoothCamSubject getSubject () {
 		return subject;
 	}
@@ -73,6 +78,10 @@ public class SmoothCamWorld {
 
 	public void setY (float y) {
 		this.y = y;
+	}
+
+	public void setZoom (float zoom) {
+		this.zoom = zoom;
 	}
 
 	public SmoothCamBoundingBox getBoundingBox () {
@@ -127,6 +136,7 @@ public class SmoothCamWorld {
 					x = nearestPoint.getX() + coeff * deltaX;
 					y = nearestPoint.getY() + coeff * deltaY;
 				}
+				zoom = 1f + (nearestPoint.getZoom() - nearestPoint.getZoom() * coeff);
 			}
 		} else {
 			x = subject.getX();
