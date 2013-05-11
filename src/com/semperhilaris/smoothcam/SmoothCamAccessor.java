@@ -9,6 +9,7 @@ import aurelienribon.tweenengine.TweenAccessor;
 public class SmoothCamAccessor implements TweenAccessor<SmoothCamWorld> {
 
 	public static final int PAN = 1;
+	public static final int ZOOM = 2;
 
 	@Override
 	public int getValues (SmoothCamWorld target, int tweenType, float[] returnValues) {
@@ -17,6 +18,9 @@ public class SmoothCamAccessor implements TweenAccessor<SmoothCamWorld> {
 			returnValues[0] = target.getX();
 			returnValues[1] = target.getY();
 			return 2;
+		case ZOOM:
+			returnValues[0] = target.getZoom();
+			return 1;
 		default:
 			assert false;
 			return -1;
@@ -29,6 +33,9 @@ public class SmoothCamAccessor implements TweenAccessor<SmoothCamWorld> {
 		case PAN:
 			target.setX(newValues[0]);
 			target.setY(newValues[1]);
+			break;
+		case ZOOM:
+			target.setZoom(newValues[0]);
 			break;
 		default:
 			assert false;

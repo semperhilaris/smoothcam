@@ -5,6 +5,7 @@ import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
 import aurelienribon.tweenengine.equations.Elastic;
+import aurelienribon.tweenengine.equations.Quad;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -36,15 +37,20 @@ public class SmoothCamTest implements ApplicationListener {
 	private SmoothCamDebugRenderer scDebug;
 	private TweenManager tweenManager;
 	private Timeline timeline;
+	private float w;
+	private float h;
+	public boolean isTweening;
 
 	@Override
 	public void create () {
-		float w = Gdx.graphics.getWidth();
-		float h = Gdx.graphics.getHeight();
+		w = Gdx.graphics.getWidth() / 2;
+		h = Gdx.graphics.getHeight() / 2;
+
+		isTweening = false;
 
 		debugRenderer = new Box2DDebugRenderer();
 
-		camera = new OrthographicCamera(w / 2, h / 2);
+		camera = new OrthographicCamera(w, h);
 		world = new World(new Vector2(0, 0), true);
 
 		/* Initializing SmoothCam Debug Renderer */
@@ -151,16 +157,17 @@ public class SmoothCamTest implements ApplicationListener {
 		Gdx.input.setInputProcessor(new InputAdapter() {
 			public boolean keyDown (int key) {
 				if (key == Keys.T) {
-					scw.isTweening = !scw.isTweening;
-					if (scw.isTweening) {
+					isTweening = !isTweening;
+					if (isTweening) {
 						/*
-						 * Example Tween-Sequence: 1. Pan to point of interest #1 (0, -50) 2. Wait 1 second 3. Pan back to the starting
-						 * position
+						 * Example Tween-Sequence: Zoom to 120%, Pan to point of interest #1 (0, -50), Wait 1 second, Pan back to the
+						 * starting position, Zoom back to the initial value
 						 */
 						timeline = Timeline.createSequence()
+							.push(Tween.to(scw, SmoothCamAccessor.ZOOM, 0.5f).target(1.2f).ease(Quad.OUT))
 							.push(Tween.to(scw, SmoothCamAccessor.PAN, 1.5f).target(0, -50).ease(Elastic.INOUT)).pushPause(1.0f)
 							.push(Tween.to(scw, SmoothCamAccessor.PAN, 1.5f).target(scw.getX(), scw.getY()).ease(Elastic.INOUT))
-							.start(tweenManager);
+							.push(Tween.to(scw, SmoothCamAccessor.ZOOM, 0.5f).target(scw.getZoom()).ease(Quad.OUT)).start(tweenManager);
 					} else {
 						tweenManager.killAll();
 					}
@@ -179,11 +186,11 @@ public class SmoothCamTest implements ApplicationListener {
 	@Override
 	public void render () {
 
-		if (scw.isTweening && timeline.isFinished()) {
-			scw.isTweening = false;
+		if (isTweening && timeline.isFinished()) {
+			isTweening = false;
 		}
 
-		if (!scw.isTweening) {
+		if (!isTweening) {
 			if (Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)) {
 				float accelX = Gdx.input.getAccelerometerX();
 				float accelY = Gdx.input.getAccelerometerY();
@@ -214,8 +221,8 @@ public class SmoothCamTest implements ApplicationListener {
 		 * Center the libGDX camera using the coordinates of the SmoothCamWorld
 		 */
 		camera.position.set(scw.getX(), scw.getY(), 0);
-		camera.viewportWidth = (Gdx.graphics.getWidth() / 2) * scw.getZoom();
-		camera.viewportHeight = (Gdx.graphics.getHeight() / 2) * scw.getZoom();
+		camera.viewportWidth = w * scw.getZoom();
+		camera.viewportHeight = h * scw.getZoom();
 		camera.update();
 
 		Gdx.gl.glClearColor(1, 1, 1, 1);

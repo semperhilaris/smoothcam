@@ -14,7 +14,6 @@ public class SmoothCamWorld {
 	private float y = 0f;
 	private float zoom = 1f;
 	private boolean useBoundingBox = false;
-	public boolean isTweening = false;
 
 	/** Creates a World for SmoothCam and sets its subject
 	 * @param subject */
@@ -129,7 +128,7 @@ public class SmoothCamWorld {
 				float deltaX = subject.getX() - nearestPoint.getX();
 				float deltaY = subject.getY() - nearestPoint.getY();
 				if (nearestPoint.getPolarity() == SmoothCamPoint.REPULSE) {
-					if (distance == 0) distance = 0.0001; // avoiding devision by zero
+					if (distance == 0) distance = 0.0001; // avoiding division by zero
 					x = subject.getX() + deltaX / (float)distance * (nearestPoint.getOuterRadius() - (float)distance);
 					y = subject.getY() + deltaY / (float)distance * (nearestPoint.getOuterRadius() - (float)distance);
 				} else {
