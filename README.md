@@ -11,12 +11,12 @@ It was inspired by this amazing demonstration of "Insanely Twisted Shadow Planet
  - Repulsive Points to push the camera away
  - Zooming
  - Integration with Universal Tween Engine (http://www.aurelienribon.com/blog/projects/universal-tween-engine/)
+ - Player aiming
+ - Camera Snapping to one axis
 
 ## Possible Future Features
 
- - Player aiming (as seen in ITSP)
  - Overlapping Points of Interest
- - Camera Snapping to one axis (maybe needed for platformers?)
 
 ## libGDX Demo
 
