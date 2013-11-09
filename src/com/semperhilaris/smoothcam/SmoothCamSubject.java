@@ -7,9 +7,33 @@ public class SmoothCamSubject extends SmoothCamPoint {
 	private float velocityX = 0;
 	private float velocityY = 0;
 	private float velocityRadius = 0;
+	private float aimingX = 0;
+	private float aimingY = 0;
+	private float aimingRadius = 0;
 
 	public SmoothCamSubject () {
 		super();
+	}
+
+	public void setAimingRadius (float aimingRadius) {
+		this.aimingRadius = aimingRadius;
+	}
+
+	public void setAiming (float x, float y) {
+		if (x > 1) {
+			x = 1;
+		}
+		if (x < -1) {
+			x = -1;
+		}
+		if (y > 1) {
+			y = 1;
+		}
+		if (y < -1) {
+			y = -1;
+		}
+		aimingX = x;
+		aimingY = y;
 	}
 
 	public void setVelocityRadius (float velocityRadius) {
@@ -35,6 +59,18 @@ public class SmoothCamSubject extends SmoothCamPoint {
 		}
 		velocityX = x;
 		velocityY = y;
+	}
+
+	public float getAimingRadius () {
+		return aimingRadius;
+	}
+
+	public float getAimingX () {
+		return aimingX;
+	}
+
+	public float getAimingY () {
+		return aimingY;
 	}
 
 	public float getVelocityRadius () {

@@ -14,6 +14,10 @@ public class SmoothCamWorld {
 	private float y = 0f;
 	private float zoom = 1f;
 	private boolean useBoundingBox = false;
+	private float fixedXvalue = 0f;
+	private float fixedYvalue = 0f;
+	public boolean fixedX = false;
+	public boolean fixedY = false;
 
 	/** Creates a World for SmoothCam and sets its subject
 	 * @param subject */
@@ -83,6 +87,34 @@ public class SmoothCamWorld {
 		this.zoom = zoom;
 	}
 
+	public void setFixedX (float fixedValue) {
+		fixedX = true;
+		fixedXvalue = fixedValue;
+	}
+
+	public void setFixedY (float fixedValue) {
+		fixedY = true;
+		fixedYvalue = fixedValue;
+	}
+
+	public void setFixedAxis (float fixedX, float fixedY) {
+		setFixedX(fixedX);
+		setFixedY(fixedY);
+	}
+
+	public void freeFixedX () {
+		fixedX = false;
+	}
+
+	public void freeFixedY () {
+		fixedY = false;
+	}
+
+	public void freeFixedAxis () {
+		freeFixedX();
+		freeFixedY();
+	}
+
 	public SmoothCamBoundingBox getBoundingBox () {
 		return boundingBox;
 	}
@@ -117,8 +149,8 @@ public class SmoothCamWorld {
 			SmoothCamPoint nearestPoint = getNearestPoint(this.subject);
 			double distance = getDistance(subject, nearestPoint);
 			if (distance > nearestPoint.getOuterRadius()) {
-				x = subject.getX();
-				y = subject.getY();
+				if (!fixedX) x = subject.getX();
+				if (!fixedY) y = subject.getY();
 				coeff = 1f;
 			} else {
 				coeff = ((float)distance - nearestPoint.getInnerRadius()) / nearestPoint.getRadiusDistance();
@@ -129,21 +161,37 @@ public class SmoothCamWorld {
 				float deltaY = subject.getY() - nearestPoint.getY();
 				if (nearestPoint.getPolarity() == SmoothCamPoint.REPULSE) {
 					if (distance == 0) distance = 0.0001; // avoiding division by zero
-					x = subject.getX() + deltaX / (float)distance * (nearestPoint.getOuterRadius() - (float)distance);
-					y = subject.getY() + deltaY / (float)distance * (nearestPoint.getOuterRadius() - (float)distance);
+					if (!fixedX) x = subject.getX() + deltaX / (float)distance * (nearestPoint.getOuterRadius() - (float)distance);
+					if (!fixedY) y = subject.getY() + deltaY / (float)distance * (nearestPoint.getOuterRadius() - (float)distance);
 				} else {
-					x = nearestPoint.getX() + coeff * deltaX;
-					y = nearestPoint.getY() + coeff * deltaY;
+					if (!fixedX) x = nearestPoint.getX() + coeff * deltaX;
+					if (!fixedY) y = nearestPoint.getY() + coeff * deltaY;
 				}
 				zoom = 1f + (nearestPoint.getZoom() - nearestPoint.getZoom() * coeff);
 			}
 		} else {
-			x = subject.getX();
-			y = subject.getY();
+			if (!fixedX) x = subject.getX();
+			if (!fixedY) y = subject.getY();
 			coeff = 1f;
 		}
-		x = x + (subject.getVelocityRadius() * subject.getVelocityX() * coeff);
-		y = y + (subject.getVelocityRadius() * subject.getVelocityY() * coeff);
+
+		if (subject.getVelocityRadius() > 0) {
+			x = x + (subject.getVelocityRadius() * subject.getVelocityX() * coeff);
+			y = y + (subject.getVelocityRadius() * subject.getVelocityY() * coeff);
+		}
+
+		if (subject.getAimingRadius() > 0) {
+			x = x + (subject.getAimingRadius() * subject.getAimingX() * coeff);
+			y = y + (subject.getAimingRadius() * subject.getAimingY() * coeff);
+		}
+
+		if (fixedX) {
+			x = fixedXvalue;
+		}
+		if (fixedY) {
+			y = fixedYvalue;
+		}
+
 		if (useBoundingBox) {
 			if (subject.getX() > x + boundingBox.w2) {
 				x = subject.getX() - boundingBox.w2;
