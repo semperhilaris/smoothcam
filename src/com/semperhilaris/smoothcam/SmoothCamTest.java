@@ -21,7 +21,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -65,6 +64,11 @@ public class SmoothCamTest implements ApplicationListener {
 		 */
 		player.setVelocityRadius(30f);
 
+		/*
+		 * Set the aiming radius for the subject.
+		 */
+		player.setAimingRadius(50f);
+
 		/* Creating the SmoothCamWorld with the subject */
 		scw = new SmoothCamWorld(player);
 
@@ -88,7 +92,7 @@ public class SmoothCamTest implements ApplicationListener {
 		fixtureDef.density = 0.5f;
 		fixtureDef.friction = 0.4f;
 		fixtureDef.restitution = 0.6f;
-		Fixture fixture = body.createFixture(fixtureDef);
+		body.createFixture(fixtureDef);
 		circle.dispose();
 
 		BodyDef groundBodyDef = new BodyDef();
@@ -173,6 +177,22 @@ public class SmoothCamTest implements ApplicationListener {
 					}
 					return true;
 				}
+				if (key == Keys.X) {
+					if (scw.fixedX) {
+						scw.freeFixedX();
+					} else {
+						scw.setFixedX(scw.getX());
+					}
+					return true;
+				}
+				if (key == Keys.Y) {
+					if (scw.fixedY) {
+						scw.freeFixedY();
+					} else {
+						scw.setFixedY(scw.getY());
+					}
+					return true;
+				}
 				return false;
 			}
 		});
@@ -194,12 +214,39 @@ public class SmoothCamTest implements ApplicationListener {
 			if (Gdx.input.isPeripheralAvailable(Peripheral.Accelerometer)) {
 				float accelX = Gdx.input.getAccelerometerX();
 				float accelY = Gdx.input.getAccelerometerY();
-				body.applyLinearImpulse(new Vector2(accelY * 30f, accelX * -30f), body.getLocalCenter());
+				body.applyLinearImpulse(new Vector2(accelY * 30f, accelX * -30f), body.getLocalCenter(), true);
 			} else {
-				if (Gdx.input.isKeyPressed(Keys.DPAD_LEFT)) body.applyLinearImpulse(new Vector2(-150f, 0f), body.getLocalCenter());
-				if (Gdx.input.isKeyPressed(Keys.DPAD_RIGHT)) body.applyLinearImpulse(new Vector2(150f, 0f), body.getLocalCenter());
-				if (Gdx.input.isKeyPressed(Keys.DPAD_UP)) body.applyLinearImpulse(new Vector2(0f, 150f), body.getLocalCenter());
-				if (Gdx.input.isKeyPressed(Keys.DPAD_DOWN)) body.applyLinearImpulse(new Vector2(0f, -150f), body.getLocalCenter());
+				if (Gdx.input.isKeyPressed(Keys.DPAD_LEFT))
+					body.applyLinearImpulse(new Vector2(-150f, 0f), body.getLocalCenter(), true);
+				if (Gdx.input.isKeyPressed(Keys.DPAD_RIGHT))
+					body.applyLinearImpulse(new Vector2(150f, 0f), body.getLocalCenter(), true);
+				if (Gdx.input.isKeyPressed(Keys.DPAD_UP))
+					body.applyLinearImpulse(new Vector2(0f, 150f), body.getLocalCenter(), true);
+				if (Gdx.input.isKeyPressed(Keys.DPAD_DOWN))
+					body.applyLinearImpulse(new Vector2(0f, -150f), body.getLocalCenter(), true);
+
+				if (Gdx.input.isKeyPressed(Keys.D) || Gdx.input.isKeyPressed(Keys.A)) {
+					if (Gdx.input.isKeyPressed(Keys.D)) {
+						player.setAiming(1, player.getAimingY());
+					}
+					if (Gdx.input.isKeyPressed(Keys.A)) {
+						player.setAiming(-1, player.getAimingY());
+					}
+				}
+				else {
+					player.setAiming(0, player.getAimingY());
+				}
+				if (Gdx.input.isKeyPressed(Keys.W) || Gdx.input.isKeyPressed(Keys.S)) {
+					if (Gdx.input.isKeyPressed(Keys.W)) {
+						player.setAiming(player.getAimingX(), 1);
+					}
+					if (Gdx.input.isKeyPressed(Keys.S)) {
+						player.setAiming(player.getAimingX(), -1);
+					}
+				}
+				else {
+					player.setAiming(player.getAimingX(), 0);
+				}
 			}
 			/*
 			 * Updating the position and velocity of the SmoothCamSubject using Box2D. In this example, maximum velocity of the body
