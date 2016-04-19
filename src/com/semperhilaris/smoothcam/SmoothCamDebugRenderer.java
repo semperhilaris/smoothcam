@@ -1,6 +1,8 @@
 
 package com.semperhilaris.smoothcam;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Matrix4;
@@ -19,18 +21,19 @@ public class SmoothCamDebugRenderer {
 	 * @param world
 	 * @param projMatrix */
 	public void render (SmoothCamWorld world, Matrix4 projMatrix) {
-		SmoothCamPoint[] points = world.getPoints();
+		ArrayList<SmoothCamPoint> points = world.getPoints();
 		renderer.setProjectionMatrix(projMatrix);
 		renderer.begin(ShapeType.Line);
-		for (int i = 0; i < points.length; i++) {
+		for (int i = 0, size = points.size(); i < size; i++) {
+			SmoothCamPoint point = points.get(i);
 			renderer.setColor(0, 1, 0, 1);
-			renderer.circle(points[i].getX(), points[i].getY(), points[i].getInnerRadius());
-			if (points[i].getPolarity() == SmoothCamPoint.REPULSE) {
+			renderer.circle(point.getX(), point.getY(), point.getInnerRadius());
+			if (point.getPolarity() == SmoothCamPoint.REPULSE) {
 				renderer.setColor(1, 0, 0, 1);
 			} else {
 				renderer.setColor(0, 0, 1, 1);
 			}
-			renderer.circle(points[i].getX(), points[i].getY(), points[i].getOuterRadius());
+			renderer.circle(point.getX(), point.getY(), point.getOuterRadius());
 		}
 		renderer.setColor(0, 0, 0, 1);
 		SmoothCamSubject subject = world.getSubject();
