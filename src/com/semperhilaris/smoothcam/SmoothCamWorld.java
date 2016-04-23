@@ -2,14 +2,13 @@
 package com.semperhilaris.smoothcam;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /** Provides smooth camera movement between one {@link SmoothCamSubject} and a set of {@link SmoothCamPoint}
  * @author David Froehlich <semperhilaris@gmail.com> */
 public class SmoothCamWorld {
 	private SmoothCamSubject subject;
 	private SmoothCamBoundingBox boundingBox = new SmoothCamBoundingBox(0, 0);
-	private SmoothCamPoint[] points = {};
+	private ArrayList<SmoothCamPoint> points = new ArrayList<SmoothCamPoint>(15);
 	private float x = 0f;
 	private float y = 0f;
 	private float zoom = 1f;
@@ -28,21 +27,16 @@ public class SmoothCamWorld {
 	/** Adds a {@link SmoothCamPoint} to the world
 	 * @param point */
 	public void addPoint (SmoothCamPoint point) {
-		SmoothCamPoint[] newPoints = new SmoothCamPoint[points.length + 1];
-		newPoints[0] = point;
-		System.arraycopy(points, 0, newPoints, 1, points.length);
-		points = newPoints;
+	    points.add(point);
 	}
 
 	/** Removes a {@link SmoothCamPoint} from the world
 	 * @param point */
 	public void removePoint (SmoothCamPoint point) {
-		ArrayList<SmoothCamPoint> temp = new ArrayList<SmoothCamPoint>(Arrays.asList(points));
-		temp.remove(point);
-		points = temp.toArray(new SmoothCamPoint[temp.size()]);
+	    points.remove(point);
 	}
 
-	public SmoothCamPoint[] getPoints () {
+	public ArrayList<SmoothCamPoint> getPoints () {
 		return points;
 	}
 
@@ -127,12 +121,13 @@ public class SmoothCamWorld {
 		double distance = 0;
 		double currentBest = 0;
 		SmoothCamPoint nearestPoint = new SmoothCamPoint();
-		for (int i = 0; i < points.length; i++) {
-			distance = getDistance(p1, points[i]);
-			if (distance <= points[i].getOuterRadius()) {
-				return points[i];
+		for (int i = 0, size = points.size(); i < size; i++) {
+			SmoothCamPoint point = points.get(i);
+			distance = getDistance(p1, point);
+			if (distance <= point.getOuterRadius()) {
+				return point;
 			} else if (distance < currentBest || currentBest == 0) {
-				nearestPoint = points[i];
+				nearestPoint = point;
 				currentBest = distance;
 			}
 		}
@@ -145,7 +140,7 @@ public class SmoothCamWorld {
 	 * camera focus switches completely to the point of interest. */
 	public void update () {
 		float coeff = 0f;
-		if (points.length > 0) {
+		if (points.size() > 0) {
 			SmoothCamPoint nearestPoint = getNearestPoint(this.subject);
 			double distance = getDistance(subject, nearestPoint);
 			if (distance > nearestPoint.getOuterRadius()) {
